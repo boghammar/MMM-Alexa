@@ -1,0 +1,22 @@
+{
+  "name": "mmmalexa",
+  "version": "1.0.0",
+  "description": "Magic Mirror module integrating with Amamzon AVS",
+  "main": "MMM-Alexa.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boghammar/MMM-Alexa.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/boghammar/MMM-Alexa/issues"
+  },
+  "homepage": "https://github.com/boghammar/MMM-Alexa#readme",
+  "dependencies": {
+    "aws-iot-device-sdk": "^2.0.0"
+  }
+}
