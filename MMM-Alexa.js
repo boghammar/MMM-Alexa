@@ -29,9 +29,10 @@
         var wrapper = document.createElement("div");
 
         if (!this.loaded) {
-			wrapper.innerHTML = this.name + " loading feeds ...";
-			wrapper.className = "dimmed light small";
-			return wrapper;
+            var div = document.createElement("div");
+			div.innerHTML = this.name + " loading feeds ...";
+			div.className = "dimmed light small";
+			wrapper.appendChild(div);
 		}
         // ----- Show a message if we got any
         if (this.message !== undefined) {
@@ -43,7 +44,7 @@
         // ----- Show service failure if any
         if (this.failure !== undefined) {
             var div = document.createElement("div");
-            div.innerHTML = "Service: "+this.failure.StatusCode + '-' + this.failure.Message;
+            div.innerHTML = "Service: "+ this.failure;
             div.style.color = "red"; // TODO Change this to a custom style
             wrapper.appendChild(div);
         }
@@ -53,6 +54,9 @@
 
     // --------------------------------------- Handle socketnotifications
     socketNotificationReceived: function(notification, payload) {
+        Log.info("Got notification: "+notification);
+        //alert('1:' + JSON.stringify(payload));
+        //debugger;
         if (notification == "HELLO") {
             this.loaded = true;
             this.message = payload;
@@ -60,7 +64,7 @@
         }
         if (notification == "SERVICE_FAILURE") {
             this.failure = payload;
-            Log.info("Service failure: "+ this.failure.StatusCode + ':' + this.failure.Message);
+            Log.info("Service failure: "+ this.failure);
             this.updateDom();
         }
     },
