@@ -62,9 +62,13 @@
             this.message = payload;
             this.updateDom();
         }
-        if (notification == "SERVICE_FAILURE") {
+        else if (notification == "SERVICE_FAILURE") {
             this.failure = payload;
             Log.info("Service failure: "+ this.failure);
+            this.updateDom();
+        } else {
+            this.loaded = true;
+            this.message = "Got notification '"+notification + "' " + JSON.stringify(payload);
             this.updateDom();
         }
     },

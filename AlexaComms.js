@@ -23,13 +23,18 @@ app.start = function(config, callback) {
 
     // ----- Create our device
     try {
-        app.device = awsIot.device({
-            keyPath: __dirname + "/certs/MagicMirror.private.key",
-            certPath: __dirname + "/certs/MagicMirror.cert.pem",
-            caPath: __dirname + "/certs/root-CA.crt",
+        var opt = {
+            keyPath: self.config.certPath + "/" + self.config.certID + "-private.pem.key",
+            certPath: self.config.certPath + "/" + self.config.certID +  "-certificate.pem.crt",
+            caPath: self.config.certPath + "/root-CA.crt",
             clientId: "MagicMirror" + (new Date().getTime()),
             region: "us-east-1",
-        });
+            host: 'apt0pfcp3wbpr.iot.us-east-1.amazonaws.com'
+        }
+        console.log("Creating device:\n\tkeyPath="+opt.keyPath+"\n\tcertPath="+opt.certPath);
+        var fs = require('fs');
+        if (!fs.existsSync(opt.certPath)) console.log(opt.certPath+" DOES NOT EXIST")
+        app.device = awsIot.device(opt);
 
         // ----- Setup connect handler
         app.device.on("connect", function() {
@@ -38,7 +43,7 @@ app.start = function(config, callback) {
             // --- Register subscriptions
             for (var ix = 0; ix < self.config.topics.length; ix++) {
                 self.device.subscribe(self.config.topics[ix]);
-                console.log("Subscribed: " + self.config.topics[ix]);
+                console.log("Subscribed to: '" + self.config.topics[ix]+"'");
             }
 
             self.callback(null, "HELLO", "Connected to AWS IOT and registered all subscriptions");
