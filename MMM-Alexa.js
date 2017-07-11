@@ -30,13 +30,14 @@
 
         if (!this.loaded) {
             var div = document.createElement("div");
-			div.innerHTML = this.name + " loading feeds ...";
+			div.innerHTML = this.name + " waiting for connection to AWS IOT ...";
 			div.className = "dimmed light small";
 			wrapper.appendChild(div);
 		}
         // ----- Show a message if we got any
         if (this.message !== undefined) {
             var div = document.createElement("div");
+			div.className = "light small";
             div.innerHTML = this.message;
             wrapper.appendChild(div);
         }
@@ -45,6 +46,7 @@
         if (this.failure !== undefined) {
             var div = document.createElement("div");
             div.innerHTML = "Service: "+ this.failure;
+			div.className = "small";
             div.style.color = "red"; // TODO Change this to a custom style
             wrapper.appendChild(div);
         }

@@ -42,8 +42,8 @@ app.start = function(config, callback) {
 
             // --- Register subscriptions
             for (var ix = 0; ix < self.config.topics.length; ix++) {
-                self.device.subscribe(self.config.topics[ix]);
-                console.log("Subscribed to: '" + self.config.topics[ix]+"'");
+                self.device.subscribe(self.config.topics[ix].topic);
+                console.log("Subscribed to: '" + self.config.topics[ix].topic+"'");
             }
 
             self.callback(null, "HELLO", "Connected to AWS IOT and registered all subscriptions");
@@ -53,7 +53,7 @@ app.start = function(config, callback) {
         // --- Setup message listener
         app.device.on("message", function(topic, payload) {
             console.log("AjaxComms got: " + topic + " " + payload);
-            var JSONpayload = JSON.parse(payload.toString());
+            var JSONpayload = JSON.parse(payload);
             var toModule = (JSONpayload.module !== undefined && JSONpayload.module != null ? JSONpayload.module : null);
             self.callback(toModule, topic, JSONpayload.body);
         });

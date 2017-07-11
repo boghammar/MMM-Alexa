@@ -23,11 +23,21 @@ module.exports = NodeHelper.create({
     // --------------------------------------- Start the Alexa integration
     startAlexa: function() {
         var self = this;
-        AlexaComms.start(this.config, function(toModule, topic, payload) {
+        AlexaComms.start(this.config, function(toModule, aTopic, payload) {
             var theModule = (toModule !== undefined && toModule != null ? toModule : '');
-            console.log("Got topic: "+ topic + " for module "+ theModule);
-            var address = theModule+':'+topic;
-            self.sendSocketNotification(topic, payload);
+            console.log("MMM-Alexa: Got topic: "+ aTopic + " for module "+ theModule);
+            var noHandler = true;
+            self.config.topics.forEach(function(topic) {
+                if (topic.module == theModule) {
+                    console.log("MMM-Alexa: Sending topic: "+topic.topic + ' to module:'+topic.module);
+                    topic.handler.handleTopic(aTopic, payload);
+                    noHandler = false;
+                }
+            }, this);
+            if (noHandler) { // Send it to the ui so that it can do something with it
+                var address = theModule+':'+aTopic;
+                self.sendSocketNotification(aTopic, payload);
+            }
         });
     },
     
@@ -37,6 +47,18 @@ module.exports = NodeHelper.create({
         if (notification === 'CONFIG' && this.started == false) {
 		    this.config = payload;	     
 		    this.started = true;
+            // ------ Load all modules defined as topic handlers
+            this.config.topics.forEach(function(topic) {
+                console.log("MMM-Alexa: Loading handler for topic: "+topic.topic + ' module:'+topic.module);
+                try {
+                    topic.handler = require('./modules/'+topic.module+'/index.js');
+                    topic.handler.helper = self;
+                    if (topic.config !== undefined) topic.handler.init(topic.config);
+                } catch (err) {
+                    console.log("MMM-Alexa: Failed loading module: "+topic.module + " "+err);
+                    self.sendSocketNotification("SERVICE_FAILURE", JSON.stringify(err));
+                }
+            });
             this.startAlexa();
         };
     }
