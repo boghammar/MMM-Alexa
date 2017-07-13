@@ -80,12 +80,12 @@
             }
             if (topic == "HELLO") {
                 this.loaded = true;
-                this.message = payload;
+                this.message = JSON.stringify(payload);
                 this.updateDom();
             }
         }
         else if (notification == "SERVICE_FAILURE") {
-            this.failure = payload;
+            this.failure = JSON.stringify(payload);
             Log.info("Service failure: "+ this.failure);
             this.updateDom();
         } else {

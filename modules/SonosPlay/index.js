@@ -17,14 +17,15 @@ sonos.handleTopic = function(topic, payload) {
 
     switch (payload.action) {
         case 'play': this.play(payload); break;
+        case 'resume': this.resume(payload); break;
+        case 'stop': this.stop(payload); break;
         default: console.log("Unknown action "+payload.action); break;
     }
 
-    if (this.helper !== undefined) this.helper.sendSocketNotification("HELLO", "Have started "+payload);
+    if (this.helper !== undefined) this.helper.sendSocketNotification("HELLO", "Have "+payload.action+": "+JSON.stringify(payload));
 }
 
 // ------------------------------------------------------------- Module specific stuff
-
 sonos.play = function(payload) {
     var self = this;
     var opt = {
@@ -37,12 +38,58 @@ sonos.play = function(payload) {
             if (resp.StatusCode == 0) {
                 // TODO handle the ok response
             } else {
-                console.log("Something went wrong: " + resp.StatusCode + ': '+ resp.Message);
+                console.log("Play: Something went wrong: " + resp.StatusCode + ': '+ resp.Message);
                 self.helper.sendSocketNotification('SERVICE_FAILURE', resp); 
             }
         })
         .catch(function(err) {
-                console.log('Problems: '+err);
+                console.log('Play: Problems: '+err);
+                self.helper.sendSocketNotification('SERVICE_FAILURE', err); 
+        });
+}
+
+// ------------------------------------------------------------- Resume playing
+sonos.resume = function(payload) {
+    var self = this;
+    var opt = {
+        uri: this.config.url + '/' + payload.where + '/play',
+        json: true
+    }
+    request(opt)
+        .then(function(resp){
+            console.log('SonosPlay - response status: ' + JSON.stringify(resp))
+            if (resp.StatusCode == 0) {
+                // TODO handle the ok response
+            } else {
+                console.log("Resume: Something went wrong: " + resp.StatusCode + ': '+ resp.Message);
+                self.helper.sendSocketNotification('SERVICE_FAILURE', resp); 
+            }
+        })
+        .catch(function(err) {
+                console.log('Resume: Problems: '+err);
+                self.helper.sendSocketNotification('SERVICE_FAILURE', err); 
+        });
+}
+
+// ------------------------------------------------------------- Stope playing
+sonos.stop = function(payload) {
+    var self = this;
+    var opt = {
+        uri: this.config.url + '/' + payload.where + '/pause',
+        json: true
+    }
+    request(opt)
+        .then(function(resp){
+            console.log('SonosPlay - respstatus' + resp.StatusCode)
+            if (resp.StatusCode == 0) {
+                // TODO handle the ok response
+            } else {
+                console.log("Stop: Something went wrong: " + resp.StatusCode + ': '+ resp.Message);
+                self.helper.sendSocketNotification('SERVICE_FAILURE', resp); 
+            }
+        })
+        .catch(function(err) {
+                console.log('Stop: Problems: '+err);
                 self.helper.sendSocketNotification('SERVICE_FAILURE', err); 
         });
 }
