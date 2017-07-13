@@ -27,6 +27,7 @@ module.exports = NodeHelper.create({
             var theModule = (toModule !== undefined && toModule != null ? toModule : '');
             console.log("MMM-Alexa: Got topic: "+ aTopic + " for module "+ theModule);
             var noHandler = true;
+            // -------------- First try our own handler modules
             self.config.topics.forEach(function(topic) {
                 if (topic.module == theModule) {
                     console.log("MMM-Alexa: Sending topic: "+topic.topic + ' to module:'+topic.module);
@@ -36,7 +37,8 @@ module.exports = NodeHelper.create({
             }, this);
             if (noHandler) { // Send it to the ui so that it can do something with it
                 var address = theModule+':'+aTopic;
-                self.sendSocketNotification(aTopic, payload);
+                console.log("MMM-Alexa: Sending topic: "+address);
+                self.sendSocketNotification(address, payload);
             }
         });
     },
@@ -60,7 +62,15 @@ module.exports = NodeHelper.create({
                 }
             });
             this.startAlexa();
-        };
+        }
+        if (notification === 'SUBSCRIBETO' && this.started) {
+            console.log("MMM-Alexa: Got notification: "+notification + " "+payload);
+            AlexaComms.subscribeto(payload);
+        }
+        if (notification === 'PLAYVIDEO_RESPONSE' && this.started) {
+            console.log("MMM-Alexa: Got notification: "+notification + " "+payload);
+            AlexaComms.publish('PLAYVIDEO_RESPONSE', payload);
+        }
     }
 
 });

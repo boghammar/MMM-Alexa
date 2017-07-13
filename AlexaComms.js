@@ -15,7 +15,7 @@ const awsIot = require('aws-iot-device-sdk');
 
 var app = {};
 
-// Setup our AWS IoT device and receive messages
+// ---------------------------------- Setup our AWS IoT device and receive messages
 app.start = function(config, callback) {
     var self = this;
     app.config = config;
@@ -34,6 +34,7 @@ app.start = function(config, callback) {
         console.log("Creating device:\n\tkeyPath="+opt.keyPath+"\n\tcertPath="+opt.certPath);
         var fs = require('fs');
         if (!fs.existsSync(opt.certPath)) console.log(opt.certPath+" DOES NOT EXIST")
+        
         app.device = awsIot.device(opt);
 
         // ----- Setup connect handler
@@ -61,6 +62,18 @@ app.start = function(config, callback) {
         console.log("AlexaComms - SERVICE_FAILURE: " + JSON.stringify(err), err);
         self.callback(null, "SERVICE_FAILURE", "AlexaComms.start() " + err.message);
     }
+}
+
+app.publish = function(topic, payload) {
+    var str = JSON.stringify(payload);
+    this.device.publish(topic, str);
+    console.log("Publish: '" + topic+"' "+str);
+}
+
+app.subscribeto = function(topic) {
+    this.config.topics.push(topic);
+    this.device.subscribe(topic);
+    console.log("Subscribed to: '" + topic+"'");
 }
 
 module.exports = app;

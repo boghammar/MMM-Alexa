@@ -54,15 +54,35 @@
         return wrapper;
     },
 
+    // --------------------------------------- Handle notifications
+    notificationReceived: function(notification, payload, sender) {
+        if (notification == "SUBSCRIBETO") {
+            Log.info("Got notification "+ notification + " - " + payload + (sender ? ' ' + sender.name : ' system'));
+            this.sendSocketNotification(notification, payload); // Tell my helper
+        }
+        if (notification == "PLAYVIDEO_RESPONSE") {
+            Log.info("Got notification "+ notification + " - " + payload + (sender ? ' ' + sender.name : ' system'));
+            this.sendSocketNotification(notification, payload); // Tell my helper
+        }
+    },
+
     // --------------------------------------- Handle socketnotifications
     socketNotificationReceived: function(notification, payload) {
         Log.info("Got notification: "+notification);
         //alert('1:' + JSON.stringify(payload));
         //debugger;
-        if (notification == "HELLO") {
-            this.loaded = true;
-            this.message = payload;
-            this.updateDom();
+        var ix = -1;
+        if ((ix = notification.indexOf(':')) > -1) {
+            var topic = notification.substring(ix+1);
+            Log.info("Got socket topic "+ topic + " - " + payload );
+            if (topic == "PLAYVIDEO") {
+                this.sendNotification(topic, payload); // Let others know
+            }
+            if (topic == "HELLO") {
+                this.loaded = true;
+                this.message = payload;
+                this.updateDom();
+            }
         }
         else if (notification == "SERVICE_FAILURE") {
             this.failure = payload;
