@@ -17,6 +17,7 @@ sonos.handleTopic = function(topic, payload) {
 
     switch (payload.action) {
         case 'play': this.play(payload); break;
+        case 'next': this.next(payload); break;
         case 'resume': this.resume(payload); break;
         case 'stop': this.stop(payload); break;
         default: console.log("Unknown action "+payload.action); break;
@@ -71,7 +72,7 @@ sonos.resume = function(payload) {
         });
 }
 
-// ------------------------------------------------------------- Stope playing
+// ------------------------------------------------------------- Stop playing
 sonos.stop = function(payload) {
     var self = this;
     var opt = {
@@ -90,6 +91,28 @@ sonos.stop = function(payload) {
         })
         .catch(function(err) {
                 console.log('Stop: Problems: '+err);
+                self.helper.sendSocketNotification('SERVICE_FAILURE', err); 
+        });
+}
+// ------------------------------------------------------------- Skip to next
+sonos.next = function(payload) {
+    var self = this;
+    var opt = {
+        uri: this.config.url + '/' + payload.where + '/next',
+        json: true
+    }
+    request(opt)
+        .then(function(resp){
+            console.log('SonosPlay - respstatus' + resp.StatusCode)
+            if (resp.StatusCode == 0) {
+                // TODO handle the ok response
+            } else {
+                console.log("Next: Something went wrong: " + resp.StatusCode + ': '+ resp.Message);
+                self.helper.sendSocketNotification('SERVICE_FAILURE', resp); 
+            }
+        })
+        .catch(function(err) {
+                console.log('Next: Problems: '+err);
                 self.helper.sendSocketNotification('SERVICE_FAILURE', err); 
         });
 }
