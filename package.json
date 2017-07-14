@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/boghammar/MMM-Alexa#readme",
   "dependencies": {
-    "aws-iot-device-sdk": "^2.0.0"
+    "aws-iot-device-sdk": "^2.0.0",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
   }
 }

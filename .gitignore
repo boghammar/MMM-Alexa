@@ -1,3 +1,8 @@
+# Ignore modules except the ones included per default in MMM-Alexa
+/modules/**
+!/modules/SonosPlay
+!/modules/SonosPlay/**
+
 # Logs
 logs
 *.log

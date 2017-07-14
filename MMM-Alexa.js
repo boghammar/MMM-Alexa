@@ -30,13 +30,14 @@
 
         if (!this.loaded) {
             var div = document.createElement("div");
-			div.innerHTML = this.name + " loading feeds ...";
+			div.innerHTML = this.name + " waiting for connection to AWS IOT ...";
 			div.className = "dimmed light small";
 			wrapper.appendChild(div);
 		}
         // ----- Show a message if we got any
         if (this.message !== undefined) {
             var div = document.createElement("div");
+			div.className = "light small";
             div.innerHTML = this.message;
             wrapper.appendChild(div);
         }
@@ -45,6 +46,7 @@
         if (this.failure !== undefined) {
             var div = document.createElement("div");
             div.innerHTML = "Service: "+ this.failure;
+			div.className = "small";
             div.style.color = "red"; // TODO Change this to a custom style
             wrapper.appendChild(div);
         }
@@ -52,21 +54,48 @@
         return wrapper;
     },
 
+    // --------------------------------------- Handle notifications
+    notificationReceived: function(notification, payload, sender) {
+        if (notification == "SUBSCRIBETO") {
+            Log.info("Got notification "+ notification + " - " + payload + (sender ? ' ' + sender.name : ' system'));
+            this.sendSocketNotification(notification, payload); // Tell my helper
+        }
+        if (notification == "PLAYVIDEO_RESPONSE") {
+            Log.info("Got notification "+ notification + " - " + payload + (sender ? ' ' + sender.name : ' system'));
+            this.sendSocketNotification(notification, payload); // Tell my helper
+        }
+    },
+
     // --------------------------------------- Handle socketnotifications
     socketNotificationReceived: function(notification, payload) {
         Log.info("Got notification: "+notification);
         //alert('1:' + JSON.stringify(payload));
         //debugger;
-        if (notification == "HELLO") {
-            this.loaded = true;
-            this.message = payload;
-            this.updateDom();
+        var ix = -1;
+        if ((ix = notification.indexOf(':')) > -1) {
+            var topic = notification.substring(ix+1);
+            Log.info("Got socket topic "+ topic + " - " + payload );
+            if (topic == "PLAYVIDEO") {
+                this.sendNotification(topic, payload); // Let others know
+            }
+            if (topic == "HELLO") this.handleHello(payload);
         }
-        if (notification == "SERVICE_FAILURE") {
-            this.failure = payload;
+        else if (notification == "HELLO") this.handleHello(payload);
+        else if (notification == "SERVICE_FAILURE") {
+            this.failure = JSON.stringify(payload);
             Log.info("Service failure: "+ this.failure);
+            this.updateDom();
+        } else {
+            this.loaded = true;
+            this.message = "Got unknown notification '"+notification + "' " + JSON.stringify(payload);
             this.updateDom();
         }
     },
+    handleHello : function(payload) {
+        this.loaded = true;
+        this.message = JSON.stringify(payload);
+        this.failure = undefined;
+        this.updateDom();
+    }
 
 });
