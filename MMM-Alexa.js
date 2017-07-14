@@ -78,21 +78,24 @@
             if (topic == "PLAYVIDEO") {
                 this.sendNotification(topic, payload); // Let others know
             }
-            if (topic == "HELLO") {
-                this.loaded = true;
-                this.message = JSON.stringify(payload);
-                this.updateDom();
-            }
+            if (topic == "HELLO") this.handleHello(payload);
         }
+        else if (notification == "HELLO") this.handleHello(payload);
         else if (notification == "SERVICE_FAILURE") {
             this.failure = JSON.stringify(payload);
             Log.info("Service failure: "+ this.failure);
             this.updateDom();
         } else {
             this.loaded = true;
-            this.message = "Got notification '"+notification + "' " + JSON.stringify(payload);
+            this.message = "Got unknown notification '"+notification + "' " + JSON.stringify(payload);
             this.updateDom();
         }
     },
+    handleHello : function(payload) {
+        this.loaded = true;
+        this.message = JSON.stringify(payload);
+        this.failure = undefined;
+        this.updateDom();
+    }
 
 });

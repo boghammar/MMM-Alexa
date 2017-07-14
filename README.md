@@ -43,7 +43,8 @@ You will also need the Root-CA and it is assumed to have the name `root-CA.crt`a
 ## Modules
 Modules can be added to the configuration. The following is assumed about modules:
 * The module is located in `../MMM-Alexa/modules/modulename/index.js`
-* The module must implement the function `handleTopic(topic, payload)` and `init(config)`
+* The module must implement the functions `handleTopic(topic, payload)` and `init(config)`
+* The module must have a property called `TOPIC`that is used to start a subscription for messages with that topic.
 * When loading a module MMM-Alexa will add a `helper` object to the module. This helper is the `node_helper` instance so it is possible for the module to use for instance `sendSocketNotification` function.
 
 For an example have a look at the SonosPlay module.

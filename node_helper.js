@@ -28,10 +28,10 @@ module.exports = NodeHelper.create({
             console.log("MMM-Alexa: Got topic: "+ aTopic + " for module "+ theModule);
             var noHandler = true;
             // -------------- First try our own handler modules
-            self.config.topics.forEach(function(topic) {
-                if (topic.module == theModule) {
-                    console.log("MMM-Alexa: Sending topic: "+topic.topic + ' to module:'+topic.module);
-                    topic.handler.handleTopic(aTopic, payload);
+            self.handlers.forEach(function(handler) {
+                if (handler.module == theModule) {
+                    console.log("MMM-Alexa: Sending topic: "+handler.topic + ' to module:'+handler.module);
+                    handler.handler.handleTopic(aTopic, payload);
                     noHandler = false;
                 }
             }, this);
@@ -48,20 +48,28 @@ module.exports = NodeHelper.create({
         const self = this;
         if (notification === 'CONFIG' && this.started == false) {
 		    this.config = payload;	     
-		    this.started = true;
+            console.log("This is the config:"+JSON.stringify(this.config));
+
             // ------ Load all modules defined as topic handlers
+            this.handlers = [];
             this.config.topics.forEach(function(topic) {
                 console.log("MMM-Alexa: Loading handler for topic: "+topic.topic + ' module:'+topic.module);
                 try {
-                    topic.handler = require('./modules/'+topic.module+'/index.js');
-                    topic.handler.helper = self;
-                    if (topic.config !== undefined) topic.handler.init(topic.config);
+                    handler = require('./modules/'+topic.module+'/index.js');
+                    handler.helper = self;
+                    topic.topic = handler.TOPIC; 
+                    if (topic.config !== undefined) handler.init(topic.config);
+                    self.handlers.push({topic: topic.topic, handler: handler, module:topic.module});
+                    //console.log("This is the handlers:"+JSON.stringify(self.handlers));
+                    console.log("This is the topic:"+JSON.stringify(topic));
                 } catch (err) {
                     console.log("MMM-Alexa: Failed loading module: "+topic.module + " "+err);
                     self.sendSocketNotification("SERVICE_FAILURE", JSON.stringify(err));
                 }
             });
+            console.log("This is the config:"+JSON.stringify(this.config));
             this.startAlexa();
+		    this.started = true;
         }
         if (notification === 'SUBSCRIBETO' && this.started) {
             console.log("MMM-Alexa: Got notification: "+notification + " "+payload);

@@ -32,6 +32,7 @@ app.start = function(config, callback) {
             host: 'apt0pfcp3wbpr.iot.us-east-1.amazonaws.com'
         }
         console.log("Creating device:\n\tkeyPath="+opt.keyPath+"\n\tcertPath="+opt.certPath);
+        console.log("These are the topics:"+JSON.stringify(self.config.topics));
         var fs = require('fs');
         if (!fs.existsSync(opt.certPath)) console.log(opt.certPath+" DOES NOT EXIST")
         
